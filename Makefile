@@ -1,32 +1,29 @@
 APP = boot_selector
 
-SOURCES = main.c
-
+# OS X compiler installed from brew ports
+#CC = /usr/local/opt/gcc/bin/gcc-8
 CC = gcc
+
+COMPONENTS = main.o config_reader.o
 
 LIBNCURSES = -lncurses
 LIBPANEL = -lpanel
 LIBMENU = -lmenu
 LIBCONFIG = -lconfig
 
-LIBRARIES = $(LIBNCURSES) $(LIBPANEL) $(LIBMENU)
+LIBRARIES = $(LIBNCURSES) $(LIBPANEL) $(LIBMENU) $(LIBCONFIG)
 
-#$(APP): $(SOURCES)
-#	$(CC) -o $(APP) $(SOURCES) $(LIBRARIES)
-
-main: main.o config_reader.o
-	gcc -o main main.o config_reader.o $(LIBCONFIG)
+$(APP): $(COMPONENTS)
+	$(CC) -o $(APP) $(COMPONENTS) $(LIBRARIES)
 
 config_reader.o: config_reader.c
-	gcc -c -o config_reader.o config_reader.c $(LIBCONFIG)
+	$(CC) -c -o config_reader.o $< $(LIBCONFIG)
 
 main.o: main.c
-	gcc -c -o main.o main.c $(LIBCONFIG)
+	$(CC) -c -o main.o main.c $(LIBCONFIG)
 
 clean:
 	rm -f $(APP)
-	rm -f config_reader
-	rm -f main.o config_reader.o
-	rm -f main
+	rm -f $(COMPONENTS)
 
-.PHONY: clean $(APP) main main.o config_reader.o
+.PHONY: clean $(APP) $(COMPONENTS)
