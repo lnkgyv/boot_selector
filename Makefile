@@ -4,7 +4,7 @@ APP = boot_selector
 #CC = /usr/local/opt/gcc/bin/gcc-8
 CC = gcc
 
-COMPONENTS = main.o config_reader.o
+COMPONENTS = main.o config_reader.o menus.o
 
 LIBNCURSES = -lncurses
 LIBPANEL = -lpanel
@@ -16,11 +16,14 @@ LIBRARIES = $(LIBNCURSES) $(LIBPANEL) $(LIBMENU) $(LIBCONFIG)
 $(APP): $(COMPONENTS)
 	$(CC) -o $(APP) $(COMPONENTS) $(LIBRARIES)
 
+main.o: main.c
+	$(CC) -c -o main.o main.c $(LIBCONFIG)
+
 config_reader.o: config_reader.c
 	$(CC) -c -o config_reader.o $< $(LIBCONFIG)
 
-main.o: main.c
-	$(CC) -c -o main.o main.c $(LIBCONFIG)
+menus.o: menus.c
+	$(CC) -c -o menus.o $< $(LIBCONFIG)
 
 clean:
 	rm -f $(APP)
