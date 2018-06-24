@@ -20,7 +20,7 @@ static inline int end_curses() {
 	return 0;
 }
 
-static WINDOW *create_newwin(int height, int width, int starty, int startx) {
+static inline WINDOW *create_newwin(int height, int width, int starty, int startx) {
 	WINDOW *window;
 
 	window = newwin(height, width, starty, startx);
@@ -30,7 +30,7 @@ static WINDOW *create_newwin(int height, int width, int starty, int startx) {
 	return window;
 }
 
-static void destroy_win(WINDOW *window) {
+static inline void destroy_win(WINDOW *window) {
 	wborder(window, ' ', ' ', ' ',' ',' ',' ',' ',' ');
 	wrefresh(window);
 	delwin(window);

@@ -24,9 +24,9 @@ static inline int _free_menu(MENU *menu, ITEM **menu_items);
 
 static inline int middle(int width, const char *str);
 
-static WINDOW *create_newwin(int height, int width, int starty, int startx);
+static inline WINDOW *create_newwin(int height, int width, int starty, int startx);
 
-static void destroy_win(WINDOW *window);
+static inline void destroy_win(WINDOW *window);
 
 int node_menu(node current_node);
 
