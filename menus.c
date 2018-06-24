@@ -141,6 +141,7 @@ int main_menu(const node *NODES, const unsigned int nodes_count) {
 	menu_window = newwin(nodes_count + 6, 40, 0, 0);
 	keypad(menu_window, true);
 
+	/* Binding menu to window */
 	set_menu_win(menu, menu_window);
 	set_menu_sub(menu, derwin(menu_window, nodes_count + 2, 0, 2, 1));
 
