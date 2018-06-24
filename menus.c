@@ -211,7 +211,7 @@ int main_menu(const node *NODES, const unsigned int nodes_count) {
 						end_curses();
 
 						exit(0);
-					} else {
+					} else if (cur_item_index < nodes_count) {
 						node_menu(NODES[cur_item_index]);
 						redrawwin(menu_window);
 					}
