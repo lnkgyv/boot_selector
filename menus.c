@@ -53,59 +53,87 @@ static inline int middle(int width, const char *str) {
 }
 
 int node_menu(node current_node) {
-	WINDOW *node_win;
 	ITEM **menu_items;
 	MENU *menu;
-	int c, i;
-	int startx, starty, width, height;
+	WINDOW *node_window;
 
-	char *choices[] = {
-				"item0",
-				"Exit",
-	};
+	int i, c;
 
-	int n_choices = sizeof(choices) / sizeof(choices[0]);
-	menu_items = (ITEM **)calloc(n_choices + 1, sizeof(ITEM *));
-	
+	/* Filling menu items */
+	/* 1. Lock
+	 * 2. Unlock
+	 * 3. Set Boot Device
+	 * 4. PXE Options (if PXE choosen as bootdev)
+	 * 5. Reboot Node
+	 * 6. ------ ------
+	 * 7. Close */
+	/* PXE didn't implemented for now, so
+	 * so menu entries is less */
+	menu_items = (ITEM **)calloc(7, sizeof(ITEM *));
 
-	for (i = 0; i < n_choices; i++) {
-		menu_items[i] = new_item(choices[i], "");
-	}
-	menu_items[n_choices] = (ITEM *)NULL;
-	
-	height = 10;
-	width = 20;
-	starty = 1;
-	startx = 5;
+	menu_items[0] = new_item("Lock", "(Mark node as busy)");
+	menu_items[1] = new_item("Unlock", "(Mark node as free)");
+	menu_items[2] = new_item("Set Boot Device", "HDD/PXE");
+	menu_items[3] = new_item("Reboot", "(Reboot node)");
+	menu_items[4] = new_item("------", "------");
+	menu_items[5] = new_item("Close", "(Return to Main menu)");
+	menu_items[6] = (ITEM *)NULL;
 
-	node_win = create_newwin(height, width, starty, startx);
-	
+	/* Forming menu itself */
 	menu = new_menu((ITEM **)menu_items);
+	set_menu_mark(menu, " * ");
 
-	set_menu_win(menu, node_win);
-	set_menu_format(menu, 5, 1);
+	/* Creating menu window */
+	node_window = newwin(7 + 6, 50, 2, 2);
+	keypad(node_window, true);
 
-	refresh();
+	/* Binding menu to window */
+	set_menu_win(menu, node_window);
+	set_menu_sub(menu, derwin(node_window, 7 + 2, 0, 2, 1));
 
-	while((c = getch()) != KEY_F(2))
-	{       switch(c)
-	        {	case KEY_DOWN:
+	/* Displaying menu window with title  */
+	box(node_window, 0, 0);
+	mvwprintw(node_window, 0, middle(50, current_node.name), "%s", current_node.name);
+	refresh(); /* stdscr */
+	wrefresh(node_window);
+
+	/* Put menu */
+	post_menu(menu);
+
+	while ((c = wgetch(node_window)))
+	{
+		switch(c)
+		{
+			case KEY_DOWN:
 				menu_driver(menu, REQ_DOWN_ITEM);
 				break;
 			case KEY_UP:
 				menu_driver(menu, REQ_UP_ITEM);
 				break;
+			case KEY_NPAGE: /* scrolling */
+				menu_driver(menu, REQ_SCR_DPAGE);
+				break;
+			case KEY_PPAGE:
+				menu_driver(menu, REQ_SCR_UPAGE);
+				break;
 			case 10: /* Enter */
-				if (strcmp(item_name(current_item(menu)), "Exit") == 0) {
-					destroy_win(node_win);
+				{
+					int cur_item_index = item_index(current_item(menu));
 
-					return 0;
+					if (cur_item_index == 5) {
+						_free_menu(menu, menu_items);
+
+						return 0;
+					} else {
+						;
+					}
 				}
-
 				break;
 		}
+		wrefresh(node_window);
 	}
-	
+
+	_free_menu(menu, menu_items);
 
 	return 0;
 }
@@ -181,7 +209,7 @@ int main_menu(const node *NODES, const unsigned int nodes_count) {
 
 						exit(0);
 					} else {
-						;
+						node_menu(NODES[cur_item_index]);
 					}
 				}
 				break;
