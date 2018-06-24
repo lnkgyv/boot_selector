@@ -213,6 +213,7 @@ int main_menu(const node *NODES, const unsigned int nodes_count) {
 						exit(0);
 					} else {
 						node_menu(NODES[cur_item_index]);
+						redrawwin(menu_window);
 					}
 				}
 				break;
