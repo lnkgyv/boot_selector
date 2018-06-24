@@ -122,6 +122,7 @@ int node_menu(node current_node) {
 
 					if (cur_item_index == 5) {
 						_free_menu(menu, menu_items);
+						delwin(node_window);
 
 						return 0;
 					} else {
@@ -134,6 +135,7 @@ int node_menu(node current_node) {
 	}
 
 	_free_menu(menu, menu_items);
+	delwin(node_window);
 
 	return 0;
 }
@@ -204,6 +206,7 @@ int main_menu(const node *NODES, const unsigned int nodes_count) {
 
 					if (cur_item_index == nodes_count + 1) {
 						_free_menu(menu, menu_items);
+						delwin(menu_window);
 
 						end_curses();
 
@@ -218,6 +221,7 @@ int main_menu(const node *NODES, const unsigned int nodes_count) {
 	}
 
 	_free_menu(menu, menu_items);
+	delwin(menu_window);
 	
 	end_curses();
 
