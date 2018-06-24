@@ -36,6 +36,22 @@ static void destroy_win(WINDOW *window) {
 	delwin(window);
 }
 
+static inline int _free_menu(MENU *menu, ITEM **menu_items) {
+	free_item(menu_items[0]);
+	free_item(menu_items[1]);
+	free_menu(menu);
+
+	return 0;
+}
+
+static inline int middle(int width, const char *str) {
+	int middle;
+
+	middle = (width - strlen(str)) / 2;
+
+	return middle;
+}
+
 int node_menu(node current_node) {
 	WINDOW *node_win;
 	ITEM **menu_items;
@@ -92,23 +108,6 @@ int node_menu(node current_node) {
 	
 
 	return 0;
-}
-
-
-static inline int _free_menu(MENU *menu, ITEM **menu_items) {
-	free_item(menu_items[0]);
-	free_item(menu_items[1]);
-	free_menu(menu);
-
-	return 0;
-}
-
-static inline int middle(int width, const char *str) {
-	int middle;
-
-	middle = (width - strlen(str)) / 2;
-
-	return middle;
 }
 
 int main_menu(const node *NODES, const unsigned int nodes_count) {
