@@ -111,6 +111,8 @@ int node_menu(node current_node) {
 	while ((current_menu_item = activateCDKScroll(cdk_menu, 0)) != -1) {
 		if (cdk_menu->exitType == vNORMAL) {
 			if (current_menu_item == number_of_menu_items - 1) {
+				clear();
+				refresh();
 				destroyCDKScroll(cdk_menu);
 				destroyCDKScreen(cdk_window);
 				delwin(node_window);
@@ -166,7 +168,6 @@ int main_menu(const node *NODES, const unsigned int nodes_count) {
 	/* Displaying menu window with title  */
 	box(menu_window, 0, 0);
 	mvwprintw(menu_window, 0, middle(40, PROG_NAME), "%s", PROG_NAME);
-	//refresh(); /* stdscr */
 	wrefresh(menu_window);
 
 	cdk_menu = newCDKScroll(cdk_window,
@@ -200,6 +201,9 @@ int main_menu(const node *NODES, const unsigned int nodes_count) {
 				node_menu(NODES[current_menu_item]);
 			}
 		}
+		box(menu_window, 0, 0);
+		mvwprintw(menu_window, 0, middle(40, PROG_NAME), "%s", PROG_NAME);
+		wrefresh(menu_window);
 	}
 	
 	destroyCDKScroll(cdk_menu);
