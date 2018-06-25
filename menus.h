@@ -11,7 +11,7 @@
 
 #define PROG_NAME "Boot selector"
 
-#define FREE_MENU(menu)                 \
+#define FREE_MENU(menu)                   \
 		free_item(menu_items[0]); \
 		free_item(menu_items[1]); \
 		free_menu(menu);          \
