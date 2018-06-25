@@ -115,8 +115,6 @@ int node_menu(node current_node) {
 				destroyCDKScreen(cdk_window);
 				delwin(node_window);
 	
-				end_curses();
-
 				return 0;
 			} else if (current_menu_item == number_of_menu_items - 2) {
 				continue ;
