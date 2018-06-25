@@ -122,11 +122,9 @@ int node_menu(node current_node) {
 				continue ;
 			} else {
 				char temp[256], *mesg[10];
-				if (cdk_menu->exitType == vNORMAL) {
-					sprintf (temp, "%s", chtype2Char(cdk_menu->item[current_menu_item]));
-					mesg[0] = temp;
-					popupLabel (cdk_window, mesg, 1);
-				}
+				sprintf (temp, "%s", chtype2Char(cdk_menu->item[current_menu_item]));
+				mesg[0] = temp;
+				popupLabel (cdk_window, mesg, 1);
 			}
 		}
 	}
