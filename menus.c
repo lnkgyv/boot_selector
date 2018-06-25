@@ -141,87 +141,80 @@ int node_menu(node current_node) {
 }
 
 int main_menu(const node *NODES, const unsigned int nodes_count) {
-	ITEM **menu_items;
-	MENU *menu;
+	CDKSCREEN *cdk_window;
+	CDKSCROLL *cdk_menu;
 	WINDOW *menu_window;
+	unsigned int number_of_menu_items = nodes_count + 2;
+	char *menu_items[number_of_menu_items];
 
-	int i, c;
+	int i, current_menu_item;
 
 	initialize_curses();
 
 	/* Filling menu items */
-	menu_items = (ITEM **)calloc(nodes_count + 3, sizeof(ITEM *));
-
 	for (i = 0; i < nodes_count; i++) {
 		if (strcmp(NODES[i].name, "host3") == 0) { /* occupy test */
-			menu_items[i] = new_item(NODES[i].name, "Occupied by me");
+			menu_items[i] = strcat((char *)NODES[i].name, " (Occupied by me)");
 		} else {
-			menu_items[i] = new_item(NODES[i].name, "");
+			menu_items[i] = (char *)NODES[i].name;
 		}
 	}
-	menu_items[nodes_count] = new_item("------", "------");
-	menu_items[nodes_count + 1] = new_item("Quit", "");
-	menu_items[nodes_count + 2] = (ITEM *)NULL;
-
-	/* Forming menu itself */
-	menu = new_menu((ITEM **)menu_items);
-	set_menu_mark(menu, " * ");
+	menu_items[nodes_count] = "";
+	menu_items[nodes_count + 1] = "Quit";
 
 	/* Creating menu window */
 	menu_window = newwin(nodes_count + 6, 40, 0, 0);
 	keypad(menu_window, true);
 
-	/* Binding menu to window */
-	set_menu_win(menu, menu_window);
-	set_menu_sub(menu, derwin(menu_window, nodes_count + 2, 0, 2, 1));
+	/* Create and bind CDK screen to window */
+	cdk_window = initCDKScreen(menu_window);
 
 	/* Displaying menu window with title  */
 	box(menu_window, 0, 0);
 	mvwprintw(menu_window, 0, middle(40, PROG_NAME), "%s", PROG_NAME);
-	refresh(); /* stdscr */
+	//refresh(); /* stdscr */
 	wrefresh(menu_window);
 
-	/* Put menu */
-	post_menu(menu);
+	cdk_menu = newCDKScroll(cdk_window,
+			CENTER, /* x position */
+			CENTER, /* y position */
+			RIGHT,  /* scrol position */
+			nodes_count + 4, /* height */
+			30, /* width */
+			"Choose node:", /* title */ 
+			menu_items, /* items */
+			number_of_menu_items, /* number of elements in list */
+			false, /* show numbers ?  */
+			A_REVERSE, /* how selected item will be higlighted ? */
+			false, /* show box ?  */
+			false /* show shadow ? */
+	);
+
+	while ((current_menu_item = activateCDKScroll(cdk_menu, 0))) {
+		if (cdk_menu->exitType == vNORMAL) {
+			if (current_menu_item == number_of_menu_items - 1) {
+				destroyCDKScroll(cdk_menu);
+				destroyCDKScreen(cdk_window);
+				delwin(menu_window);
 	
-	while ((c = wgetch(menu_window)))
-	{
-		switch (c)
-		{
-			case KEY_DOWN:
-				menu_driver(menu, REQ_DOWN_ITEM);
-				break;
-			case KEY_UP:
-				menu_driver(menu, REQ_UP_ITEM);
-				break;
-			case KEY_NPAGE: /* scrolling */
-				menu_driver(menu, REQ_SCR_DPAGE);
-				break;
-			case KEY_PPAGE:
-				menu_driver(menu, REQ_SCR_UPAGE);
-				break;
-			case 10: /* Enter */
-				{
-					int cur_item_index = item_index(current_item(menu));
+				end_curses();
 
-					if (cur_item_index == nodes_count + 1) {
-						_free_menu(menu, menu_items);
-						delwin(menu_window);
-
-						end_curses();
-
-						exit(0);
-					} else if (cur_item_index < nodes_count) {
-						node_menu(NODES[cur_item_index]);
-						redrawwin(menu_window);
-					}
+				return 0;
+			} else if (current_menu_item == number_of_menu_items - 2) {
+				continue ;
+			} else {
+				char temp[256], *mesg[10];
+				if (cdk_menu->exitType == vNORMAL) {
+					sprintf (temp, "%s", chtype2Char(cdk_menu->item[current_menu_item]));
+					mesg[0] = temp;
+					popupLabel (cdk_window, mesg, 1);
 				}
-				break;
+			}
 		}
-		wrefresh(menu_window);
 	}
-
-	_free_menu(menu, menu_items);
+	
+	destroyCDKScroll(cdk_menu);
+	destroyCDKScreen(cdk_window);
 	delwin(menu_window);
 	
 	end_curses();

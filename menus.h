@@ -2,6 +2,7 @@
 #define MENUS_H
 
 #include <curses.h>
+#include <cdk.h>
 #include <menu.h>
 #include <stdlib.h>
 #include <string.h>
