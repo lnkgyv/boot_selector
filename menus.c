@@ -53,11 +53,13 @@ static inline int middle(int width, const char *str) {
 }
 
 int node_menu(node current_node) {
-	ITEM **menu_items;
-	MENU *menu;
+	CDKSCREEN *cdk_window;
+	CDKSCROLL *cdk_menu;
 	WINDOW *node_window;
+	unsigned int number_of_menu_items = 6;
+	char *menu_items[number_of_menu_items];
 
-	int i, c;
+	int current_menu_item;
 
 	/* Filling menu items */
 	/* 1. Lock
@@ -69,72 +71,68 @@ int node_menu(node current_node) {
 	 * 7. Close */
 	/* PXE didn't implemented for now, so
 	 * so menu entries is less */
-	menu_items = (ITEM **)calloc(7, sizeof(ITEM *));
 
-	menu_items[0] = new_item("Lock", "(Mark node as busy)");
-	menu_items[1] = new_item("Unlock", "(Mark node as free)");
-	menu_items[2] = new_item("Set Boot Device", "HDD/PXE");
-	menu_items[3] = new_item("Reboot", "(Reboot node)");
-	menu_items[4] = new_item("------", "------");
-	menu_items[5] = new_item("Close", "(Return to Main menu)");
-	menu_items[6] = (ITEM *)NULL;
-
-	/* Forming menu itself */
-	menu = new_menu((ITEM **)menu_items);
-	set_menu_mark(menu, " * ");
+	menu_items[0] = "Lock (Mark node as busy)";
+	menu_items[1] = "Unlock (Mark node as free)";
+	menu_items[2] = "Set Boot Device  (HDD/PXE)";
+	menu_items[3] = "Reboot (Reboot node)";
+	menu_items[4] = "";
+	menu_items[5] = "Close (Return to Main menu)";
 
 	/* Creating menu window */
 	node_window = newwin(7 + 6, 50, 2, 2);
 	keypad(node_window, true);
 
-	/* Binding menu to window */
-	set_menu_win(menu, node_window);
-	set_menu_sub(menu, derwin(node_window, 7 + 2, 0, 2, 1));
+	/* Create and bind CDK screen to window */
+	cdk_window = initCDKScreen(node_window);
 
 	/* Displaying menu window with title  */
 	box(node_window, 0, 0);
 	mvwprintw(node_window, 0, middle(50, current_node.name), "%s", current_node.name);
-	refresh(); /* stdscr */
+	//refresh(); /* stdscr */
 	wrefresh(node_window);
 
-	/* Put menu */
-	post_menu(menu);
+	/* Forming menu */
+	cdk_menu = newCDKScroll(cdk_window,
+			CENTER, /* x position */
+			CENTER, /* y position */
+			RIGHT,  /* scrol position */
+			number_of_menu_items + 4, /* height */
+			40, /* width */
+			"Choose an anction:", /* title */ 
+			menu_items, /* items */
+			number_of_menu_items, /* number of elements in list */
+			false, /* show numbers ?  */
+			A_REVERSE, /* how selected item will be higlighted ? */
+			false, /* show box ?  */
+			false /* show shadow ? */
+	);
 
-	while ((c = wgetch(node_window)))
-	{
-		switch(c)
-		{
-			case KEY_DOWN:
-				menu_driver(menu, REQ_DOWN_ITEM);
-				break;
-			case KEY_UP:
-				menu_driver(menu, REQ_UP_ITEM);
-				break;
-			case KEY_NPAGE: /* scrolling */
-				menu_driver(menu, REQ_SCR_DPAGE);
-				break;
-			case KEY_PPAGE:
-				menu_driver(menu, REQ_SCR_UPAGE);
-				break;
-			case 10: /* Enter */
-				{
-					int cur_item_index = item_index(current_item(menu));
+	while ((current_menu_item = activateCDKScroll(cdk_menu, 0))) {
+		if (cdk_menu->exitType == vNORMAL) {
+			if (current_menu_item == number_of_menu_items - 1) {
+				destroyCDKScroll(cdk_menu);
+				destroyCDKScreen(cdk_window);
+				delwin(node_window);
+	
+				end_curses();
 
-					if (cur_item_index == 5) {
-						_free_menu(menu, menu_items);
-						delwin(node_window);
-
-						return 0;
-					} else {
-						;
-					}
+				return 0;
+			} else if (current_menu_item == number_of_menu_items - 2) {
+				continue ;
+			} else {
+				char temp[256], *mesg[10];
+				if (cdk_menu->exitType == vNORMAL) {
+					sprintf (temp, "%s", chtype2Char(cdk_menu->item[current_menu_item]));
+					mesg[0] = temp;
+					popupLabel (cdk_window, mesg, 1);
 				}
-				break;
+			}
 		}
-		wrefresh(node_window);
 	}
 
-	_free_menu(menu, menu_items);
+	destroyCDKScroll(cdk_menu);
+	destroyCDKScreen(cdk_window);
 	delwin(node_window);
 
 	return 0;
@@ -203,12 +201,7 @@ int main_menu(const node *NODES, const unsigned int nodes_count) {
 			} else if (current_menu_item == number_of_menu_items - 2) {
 				continue ;
 			} else {
-				char temp[256], *mesg[10];
-				if (cdk_menu->exitType == vNORMAL) {
-					sprintf (temp, "%s", chtype2Char(cdk_menu->item[current_menu_item]));
-					mesg[0] = temp;
-					popupLabel (cdk_window, mesg, 1);
-				}
+				node_menu(NODES[current_menu_item]);
 			}
 		}
 	}
