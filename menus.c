@@ -108,7 +108,7 @@ int node_menu(node current_node) {
 			false /* show shadow ? */
 	);
 
-	while ((current_menu_item = activateCDKScroll(cdk_menu, 0))) {
+	while ((current_menu_item = activateCDKScroll(cdk_menu, 0)) != -1) {
 		if (cdk_menu->exitType == vNORMAL) {
 			if (current_menu_item == number_of_menu_items - 1) {
 				destroyCDKScroll(cdk_menu);
@@ -186,7 +186,7 @@ int main_menu(const node *NODES, const unsigned int nodes_count) {
 			false /* show shadow ? */
 	);
 
-	while ((current_menu_item = activateCDKScroll(cdk_menu, 0))) {
+	while ((current_menu_item = activateCDKScroll(cdk_menu, 0)) != -1) {
 		if (cdk_menu->exitType == vNORMAL) {
 			if (current_menu_item == number_of_menu_items - 1) {
 				destroyCDKScroll(cdk_menu);
