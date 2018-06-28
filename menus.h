@@ -2,6 +2,7 @@
 #define MENUS_H
 
 #include <curses.h>
+#include <panel.h>
 #include <cdk.h>
 #include <menu.h>
 #include <stdlib.h>
@@ -29,7 +30,7 @@ static inline WINDOW *create_newwin(int height, int width, int starty, int start
 
 static inline void destroy_win(WINDOW *window);
 
-int node_menu(node current_node);
+int node_menu(node current_node, PANEL **panel, unsigned int position);
 
 int main_menu(const node *NODES, const unsigned int nodes_count);
 

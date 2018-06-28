@@ -52,7 +52,7 @@ static inline int middle(int width, const char *str) {
 	return middle;
 }
 
-int node_menu(node current_node) {
+int node_menu(node current_node, PANEL **panel, unsigned int position) {
 	CDKSCREEN *cdk_window;
 	CDKSCROLL *cdk_menu;
 	WINDOW *node_window;
@@ -81,6 +81,8 @@ int node_menu(node current_node) {
 
 	/* Creating menu window */
 	node_window = newwin(7 + 6, 50, 2, 2);
+	panel[position] = malloc(sizeof(PANEL));
+	panel[position] = new_panel(node_window);
 	keypad(node_window, true);
 
 	/* Create and bind CDK screen to window */
@@ -89,8 +91,8 @@ int node_menu(node current_node) {
 	/* Displaying menu window with title  */
 	box(node_window, 0, 0);
 	mvwprintw(node_window, 0, middle(50, current_node.name), "%s", current_node.name);
-	//refresh(); /* stdscr */
-	wrefresh(node_window);
+	update_panels();
+	doupdate();	
 
 	/* Forming menu */
 	cdk_menu = newCDKScroll(cdk_window,
@@ -111,8 +113,7 @@ int node_menu(node current_node) {
 	while ((current_menu_item = activateCDKScroll(cdk_menu, 0)) != -1) {
 		if (cdk_menu->exitType == vNORMAL) {
 			if (current_menu_item == number_of_menu_items - 1) {
-				clear();
-				refresh();
+				del_panel(panel[position]);
 				destroyCDKScroll(cdk_menu);
 				destroyCDKScreen(cdk_window);
 				delwin(node_window);
@@ -129,6 +130,7 @@ int node_menu(node current_node) {
 		}
 	}
 
+	del_panel(panel[position]);
 	destroyCDKScroll(cdk_menu);
 	destroyCDKScreen(cdk_window);
 	delwin(node_window);
@@ -140,6 +142,8 @@ int main_menu(const node *NODES, const unsigned int nodes_count) {
 	CDKSCREEN *cdk_window;
 	CDKSCROLL *cdk_menu;
 	WINDOW *menu_window;
+	PANEL **panel;
+	unsigned int position = 0;
 	unsigned int number_of_menu_items = nodes_count + 2;
 	char *menu_items[number_of_menu_items];
 
@@ -160,6 +164,10 @@ int main_menu(const node *NODES, const unsigned int nodes_count) {
 
 	/* Creating menu window */
 	menu_window = newwin(nodes_count + 6, 40, 0, 0);
+
+	/* Allocate new panel and put window on it */
+	panel = (PANEL **)malloc(sizeof(PANEL *));
+	panel[position] = new_panel(menu_window);
 	keypad(menu_window, true);
 
 	/* Create and bind CDK screen to window */
@@ -168,7 +176,8 @@ int main_menu(const node *NODES, const unsigned int nodes_count) {
 	/* Displaying menu window with title  */
 	box(menu_window, 0, 0);
 	mvwprintw(menu_window, 0, middle(40, PROG_NAME), "%s", PROG_NAME);
-	wrefresh(menu_window);
+	update_panels();
+	doupdate();
 
 	cdk_menu = newCDKScroll(cdk_window,
 			CENTER, /* x position */
@@ -198,14 +207,14 @@ int main_menu(const node *NODES, const unsigned int nodes_count) {
 			} else if (current_menu_item == number_of_menu_items - 2) {
 				continue ;
 			} else {
-				node_menu(NODES[current_menu_item]);
+				node_menu(NODES[current_menu_item], panel, position + 1);
+				update_panels();
+				doupdate();
 			}
 		}
-		box(menu_window, 0, 0);
-		mvwprintw(menu_window, 0, middle(40, PROG_NAME), "%s", PROG_NAME);
-		wrefresh(menu_window);
 	}
 	
+	del_panel(panel[position]);
 	destroyCDKScroll(cdk_menu);
 	destroyCDKScreen(cdk_window);
 	delwin(menu_window);
