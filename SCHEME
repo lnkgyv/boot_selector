@@ -1,0 +1,57 @@
+=== PXE Boot Scheme ===
+
+PXE directory structure (All directories must be avaliable over TFTP):
+
+boot_selector/
+|-- hosts
+|   |-- host1
+|   |   |-- pxelinux.0 -> /boot_selector/pxelinux.0
+|   |   `-- pxelinux.cfg
+|   |       `-- default
+|   |-- host2
+|   |   |-- pxelinux.0 -> /boot_selector/pxelinux.0
+|   |   `-- pxelinux.cfg
+|   |       `-- default
+|   |-- host3
+|   |   |-- pxelinux.0 -> /boot_selector/pxelinux.0
+|   |   `-- pxelinux.cfg
+|   |       `-- default
+|   `-- host4
+|       |-- pxelinux.0 -> /boot_selector/pxelinux.0
+|       `-- pxelinux.cfg
+|           `-- default
+|       . . .
+| 
+|-- pxe_images
+|   |-- centos7
+|   |   |-- initrd.img
+|   |   |-- rootfs
+|   |   |-- snapshots
+|   |   |-- syslinux.cfg
+|   |   `-- vmlinuz
+|   |-- debian9
+|   |   |-- initrd.img
+|   |   |-- rootfs
+|   |   |-- snapshots
+|   |   |-- syslinux.cfg
+|   |   `-- vmlinuz
+|   |-- fedora26
+|   |   |-- initrd.img
+|   |   |-- rootfs
+|   |   |-- snapshots
+|   |   |-- syslinux.cfg
+|   |   `-- vmlinuz
+|   `-- ubuntu18
+|       |-- initrd.img
+|       |-- rootfs
+|       |-- snapshots
+|       |-- syslinux.cfg
+|       `-- vmlinuz
+|       . . .
+|
+`-- pxelinux.0
+
+How to boot specific distro on specific node:
+1. Set boot device to PXE over IPMI.
+2. Copy 'syslinux.cfg' from the choosen distro to the choosen nodes loader config file in 'host/pxelinux.cfg/default'.
+3. Reboot choosen node over IPMI.
